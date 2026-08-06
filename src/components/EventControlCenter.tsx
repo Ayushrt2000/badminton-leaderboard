@@ -142,6 +142,9 @@ export function EventControlCenter({
   const [leaderboard, setLeaderboard] = useState<GroupLeaderboardRow[]>(initialLeaderboard);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [maxParticipants, setMaxParticipants] = useState(event.max_participants);
+  const [editingMax, setEditingMax] = useState(false);
+  const [maxInput, setMaxInput] = useState(String(event.max_participants));
 
   const refresh = useCallback(async () => {
     const supabase = createClient();
@@ -235,6 +238,34 @@ export function EventControlCenter({
       : groupCourts
           .map((c) => c.courtName.match(/\d+/)?.[0] ?? c.courtName)
           .join(" & ");
+
+  async function handleUpdateMaxParticipants() {
+    const value = Number(maxInput);
+    if (!value || value < 1) {
+      setError("Enter a valid number of max players.");
+      return;
+    }
+    if (value < participants.length) {
+      setError(`Max players can't be less than the ${participants.length} already joined.`);
+      return;
+    }
+
+    setBusy(true);
+    setError(null);
+    const supabase = createClient();
+    const { error: updateError } = await supabase
+      .from("events")
+      .update({ max_participants: value })
+      .eq("id", event.id);
+    setBusy(false);
+
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
+    setMaxParticipants(value);
+    setEditingMax(false);
+  }
 
   async function handleStartRoundRobin() {
     setError(null);
@@ -644,9 +675,43 @@ export function EventControlCenter({
             </button>
           ))}
         </div>
-        <Badge tone="default">
-          {participants.length} / {event.max_participants} joined
-        </Badge>
+        {canManage && editingMax ? (
+          <div className="flex items-center gap-1.5">
+            <input
+              type="number"
+              min={participants.length}
+              autoFocus
+              value={maxInput}
+              onChange={(e) => setMaxInput(e.target.value)}
+              className="w-16 rounded-lg border border-border bg-surface-2 px-2 py-1 text-sm text-white outline-none focus:border-primary"
+            />
+            <Button size="sm" disabled={busy} onClick={handleUpdateMaxParticipants}>
+              Save
+            </Button>
+            <button
+              onClick={() => {
+                setEditingMax(false);
+                setMaxInput(String(maxParticipants));
+                setError(null);
+              }}
+              className="text-xs font-semibold text-white/40 hover:text-white/70"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            disabled={!canManage}
+            onClick={() => canManage && setEditingMax(true)}
+            className={canManage ? "cursor-pointer" : "cursor-default"}
+          >
+            <Badge tone="default">
+              {participants.length} / {maxParticipants} joined
+              {canManage && <span className="ml-1.5 text-white/40">· Edit</span>}
+            </Badge>
+          </button>
+        )}
       </div>
 
       {error && <p className="mb-4 text-sm text-primary">{error}</p>}

@@ -42,3 +42,23 @@ body {
     font-size: 16px !important;
   }
 }
+
+/* Native date inputs render their own internal layout that doesn't respect
+   our padding the way text inputs do, which can push the value/icon outside
+   the visible rounded border on mobile. Give it more breathing room and
+   normalize the picker icon so it stays inside the box. */
+input[type="date"] {
+  min-height: 44px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.6;
+  margin-left: 0.5rem;
+}
