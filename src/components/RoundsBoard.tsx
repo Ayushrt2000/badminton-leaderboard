@@ -249,6 +249,33 @@ export function RoundsBoard({
                   </div>
                 );
 
+                // Mobile-only: team 2's names left-aligned (instead of the
+                // right-aligned version used on desktop) so both rows read
+                // "names ... score" the same way instead of zig-zagging.
+                const team2SlotsMobile = (
+                  <div className="flex min-w-0 flex-1 items-center gap-1">
+                    <PlayerSlot
+                      name={m.team2[0]}
+                      playerId={m.team2Ids[0]}
+                      editable={editable}
+                      bold={team2Won}
+                      alignRight={false}
+                      options={optionsFor(m.team2Ids[0])}
+                      onChange={(newId) => onSubstitute?.(m.id, "t2p1", newId)}
+                    />
+                    <span className="shrink-0 text-xs text-white/25">&amp;</span>
+                    <PlayerSlot
+                      name={m.team2[1]}
+                      playerId={m.team2Ids[1]}
+                      editable={editable}
+                      bold={team2Won}
+                      alignRight={false}
+                      options={optionsFor(m.team2Ids[1])}
+                      onChange={(newId) => onSubstitute?.(m.id, "t2p2", newId)}
+                    />
+                  </div>
+                );
+
                 const score1 = (
                   <ScoreStepper
                     value={m.team1_score}
@@ -284,15 +311,17 @@ export function RoundsBoard({
                       {decided && <span className="text-xs font-semibold text-accent">✓ Final</span>}
                     </div>
 
-                    {/* Mobile: stacked scorecard, one team per row */}
+                    {/* Mobile: stacked scorecard, one team per row. Both rows
+                        read "names ... score" so the two score boxes line up
+                        in the same column instead of alternating sides. */}
                     <div className="flex flex-col gap-2 sm:hidden">
                       <div className="flex items-center justify-between gap-3 border-b border-border/50 pb-2">
                         {team1Slots}
                         {score1}
                       </div>
                       <div className="flex items-center justify-between gap-3">
+                        {team2SlotsMobile}
                         {score2}
-                        {team2Slots}
                       </div>
                     </div>
 
