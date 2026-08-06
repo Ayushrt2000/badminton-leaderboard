@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
-import { Input, Label } from "@/components/ui/Input";
 import { Card, CardContent } from "@/components/ui/Card";
 
 function GoogleIcon() {
@@ -40,8 +39,6 @@ function AppleIcon() {
 
 export function SignInForm({ next }: { next?: string }) {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [skipping, setSkipping] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<"google" | "apple" | null>(null);
@@ -88,42 +85,6 @@ export function SignInForm({ next }: { next?: string }) {
     router.refresh();
   }
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setStatus("sending");
-    setError(null);
-
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: buildCallbackUrl(),
-      },
-    });
-
-    if (error) {
-      setStatus("error");
-      setError(error.message);
-      return;
-    }
-
-    setStatus("sent");
-  }
-
-  if (status === "sent") {
-    return (
-      <Card>
-        <CardContent className="pt-5 text-center">
-          <p className="font-display text-2xl text-accent">Check your email</p>
-          <p className="mt-2 text-sm text-white/60">
-            We sent a sign-in link to <span className="text-white">{email}</span>. Open it on
-            this device to finish signing in.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card>
       <CardContent className="pt-5">
@@ -150,34 +111,7 @@ export function SignInForm({ next }: { next?: string }) {
           </Button>
         </div>
 
-        <div className="my-4 flex items-center gap-3">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-xs text-white/30">or use email</span>
-          <div className="h-px flex-1 bg-border" />
-        </div>
-
-        {error && <p className="mb-3 text-sm text-primary">{error}</p>}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              required
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <Button type="submit" className="w-full" disabled={status === "sending"}>
-            {status === "sending" ? "Sending link..." : "Send magic link"}
-          </Button>
-          <p className="text-center text-xs text-white/35">
-            No password needed. We&apos;ll email you a one-tap sign-in link, then grab your name
-            and community.
-          </p>
-        </form>
+        {error && <p className="mt-3 text-sm text-primary">{error}</p>}
 
         <div className="mt-5 border-t border-border pt-4 text-center">
           <button
