@@ -819,7 +819,11 @@ export function EventControlCenter({
 
       {error && <p className="mb-4 text-sm text-primary">{error}</p>}
 
-      <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+      {/* Single centered column instead of a left/right split — the round
+          cards are the primary content, so they sit centered on the page
+          with a comfortable max width, and the leaderboard sits below them
+          instead of off to the side. */}
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
         <div className="space-y-6">
           {groupRounds.length === 0 ? (
             <Card className="border-dashed">
@@ -923,9 +927,7 @@ export function EventControlCenter({
           )}
         </div>
 
-        <div>
-          <GroupLeaderboard rows={groupLeaderboard} />
-        </div>
+        <GroupLeaderboard rows={groupLeaderboard} />
       </div>
     </div>
   );
