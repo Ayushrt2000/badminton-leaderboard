@@ -30,13 +30,21 @@ function GoogleIcon() {
   );
 }
 
+function AppleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+      <path d="M16.365 1.43c0 1.14-.42 2.07-1.26 2.79-.9.78-1.98 1.23-3.15 1.14-.09-1.14.36-2.13 1.2-2.94.87-.84 2.01-1.29 3.21-1.29zm3.09 16.86c-.42.99-.93 1.92-1.56 2.79-.87 1.2-1.59 2.04-2.16 2.52-.87.78-1.8 1.17-2.79 1.2-.72.03-1.59-.21-2.61-.72-1.02-.51-1.95-.75-2.79-.72-.87.03-1.77.27-2.7.72-.93.45-1.68.69-2.25.72-.96.06-1.86-.36-2.7-1.26-.6-.63-1.32-1.53-2.16-2.7-.9-1.26-1.65-2.73-2.25-4.41-.63-1.83-.96-3.6-.96-5.31 0-1.95.42-3.63 1.26-5.04.66-1.14 1.53-2.04 2.61-2.7 1.08-.66 2.25-1.02 3.51-1.02.75 0 1.71.27 2.85.78 1.14.51 1.86.78 2.19.78.24 0 1.05-.3 2.4-.9 1.32-.54 2.43-.75 3.33-.63 2.46.21 4.32 1.17 5.55 2.94-2.19 1.35-3.27 3.21-3.27 5.61 0 1.86.66 3.42 1.98 4.62.6.57 1.26.99 1.98 1.29-.15.42-.3.81-.48 1.17z" />
+    </svg>
+  );
+}
+
 export function SignInForm({ next }: { next?: string }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [skipping, setSkipping] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<"google" | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<"google" | "apple" | null>(null);
 
   function buildCallbackUrl() {
     const callback = new URL(`${window.location.origin}/auth/callback`);
@@ -44,7 +52,7 @@ export function SignInForm({ next }: { next?: string }) {
     return callback.toString();
   }
 
-  async function handleOAuth(provider: "google") {
+  async function handleOAuth(provider: "google" | "apple") {
     setError(null);
     setOauthLoading(provider);
     const supabase = createClient();
@@ -120,6 +128,16 @@ export function SignInForm({ next }: { next?: string }) {
     <Card>
       <CardContent className="pt-5">
         <div className="space-y-2">
+          <Button
+            type="button"
+            variant="secondary"
+            className="w-full"
+            disabled={oauthLoading !== null}
+            onClick={() => handleOAuth("apple")}
+          >
+            <AppleIcon />
+            {oauthLoading === "apple" ? "Redirecting..." : "Continue with Apple"}
+          </Button>
           <Button
             type="button"
             variant="secondary"

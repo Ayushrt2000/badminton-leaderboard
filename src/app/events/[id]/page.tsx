@@ -156,7 +156,7 @@ export default async function EventPage({
           initialParticipants={participants ?? []}
           initialEventCourts={eventCourts ?? []}
           initialRounds={rounds ?? []}
-          initialRoundMatches={roundMatches ?? []}
+          initialRoundMatches={(roundMatches ?? []) as any}
           initialLeaderboard={leaderboardRows ?? []}
           initialEventHosts={eventHosts ?? []}
         />

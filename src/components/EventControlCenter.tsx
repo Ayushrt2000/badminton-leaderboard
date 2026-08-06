@@ -177,7 +177,7 @@ export function EventControlCenter({
       .from("round_matches")
       .select(MATCH_SELECT)
       .eq("event_id", event.id);
-    if (rm) setMatches(normalizeMatches(rm));
+    if (rm) setMatches(normalizeMatches(rm as any));
   }, [event.id]);
 
   useEffect(() => {
