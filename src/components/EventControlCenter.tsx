@@ -117,6 +117,7 @@ export function EventControlCenter({
 }: {
   event: {
     id: string;
+    community_id: string | null;
     max_participants: number;
     session_minutes: number;
     game_minutes: number;
@@ -225,6 +226,15 @@ export function EventControlCenter({
     () => leaderboard.filter((row) => row.skill_group === activeGroup),
     [leaderboard, activeGroup]
   );
+  const courtsAreSplit = useMemo(() => {
+    const groupsByCourtId = new Map<string, Set<SkillGroup>>();
+    for (const c of courts) {
+      if (!groupsByCourtId.has(c.courtId)) groupsByCourtId.set(c.courtId, new Set());
+      groupsByCourtId.get(c.courtId)!.add(c.skillGroup);
+    }
+    return !Array.from(groupsByCourtId.values()).some((groups) => groups.size > 1);
+  }, [courts]);
+
   const hasFinal = groupRounds.some((r) => r.is_final);
   const totalRounds = computeTotalRounds(event.game_minutes, event.round_minutes);
   const isClosed = event.status === "completed";
@@ -265,6 +275,64 @@ export function EventControlCenter({
     }
     setMaxParticipants(value);
     setEditingMax(false);
+  }
+
+  async function handleSetCourtsSplit(nextSplit: boolean) {
+    if (!event.community_id) {
+      setError("This event has no community, so courts can't be reassigned.");
+      return;
+    }
+
+    setBusy(true);
+    setError(null);
+    const supabase = createClient();
+
+    const { data: communityCourts, error: courtsError } = await supabase
+      .from("courts")
+      .select("id")
+      .eq("community_id", event.community_id)
+      .order("name");
+
+    if (courtsError) {
+      setBusy(false);
+      setError(courtsError.message);
+      return;
+    }
+    if (!communityCourts || communityCourts.length === 0) {
+      setBusy(false);
+      setError("No courts set up for this community yet.");
+      return;
+    }
+
+    const { error: deleteError } = await supabase
+      .from("event_courts")
+      .delete()
+      .eq("event_id", event.id);
+    if (deleteError) {
+      setBusy(false);
+      setError(deleteError.message);
+      return;
+    }
+
+    const rows = nextSplit
+      ? communityCourts.map((c, i) => ({
+          event_id: event.id,
+          court_id: c.id,
+          skill_group: i < Math.ceil(communityCourts.length / 2) ? "beginner" : "advanced",
+        }))
+      : communityCourts.flatMap((c) => [
+          { event_id: event.id, court_id: c.id, skill_group: "beginner" },
+          { event_id: event.id, court_id: c.id, skill_group: "advanced" },
+        ]);
+
+    const { error: insertError } = await supabase.from("event_courts").insert(rows);
+    setBusy(false);
+
+    if (insertError) {
+      setError(insertError.message);
+      return;
+    }
+    await refresh();
   }
 
   async function handleStartRoundRobin() {
@@ -650,6 +718,26 @@ export function EventControlCenter({
             onRemove={handleRemoveCoHost}
           />
           <DevSeedControls eventId={event.id} onChanged={refresh} />
+          <div className="rounded-xl border border-border bg-surface px-3 py-2">
+            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/40">
+              Courts
+            </p>
+            <label className="flex items-center gap-2 text-sm text-white/70">
+              <input
+                type="checkbox"
+                checked={courtsAreSplit}
+                disabled={busy}
+                onChange={(e) => handleSetCourtsSplit(e.target.checked)}
+                className="h-4 w-4 accent-primary"
+              />
+              Split by skill level
+            </label>
+            <p className="mt-1 max-w-[13rem] text-[11px] text-white/40">
+              {courtsAreSplit
+                ? "Courts are divided between beginner and advanced."
+                : "Every court is shared by both groups."}
+            </p>
+          </div>
         </div>
       )}
 
