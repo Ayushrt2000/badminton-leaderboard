@@ -296,10 +296,14 @@ export function RoundsBoard({
                       </div>
                     </div>
 
-                    {/* Desktop: single row */}
-                    <div className="hidden items-center gap-3 sm:flex">
-                      {courtBadge}
-                      <div className="flex flex-1 items-center justify-between gap-3">
+                    {/* Desktop: court badge sits above so it doesn't pull the
+                        team/score row off-center, then a single centered row */}
+                    <div className="hidden sm:block">
+                      <div className="mb-2 flex items-center justify-between">
+                        {courtBadge}
+                        {decided && <span className="text-xs font-semibold text-accent">✓ Final</span>}
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
                         {team1Slots}
                         {score1}
                         <span className="shrink-0 text-xs text-white/25">vs</span>

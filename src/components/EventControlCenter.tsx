@@ -87,7 +87,22 @@ function normalizeCourts(rows: RawEventCourt[]): CourtAssignment[] {
 }
 
 function normalizeMatches(rows: RawRoundMatch[]): BoardMatch[] {
-  return rows.map((r) => ({
+  // Sort by court name (numeric-aware: "Court 2" before "Court 10") so each
+  // match always renders in the same slot, then by id as a stable
+  // tiebreaker. Without this, matches re-fetched from Postgres on every live
+  // score update can come back in a different order and the cards visually
+  // jump around.
+  const sorted = [...rows].sort((a, b) => {
+    const courtCompare = (firstOf(a.courts)?.name ?? "").localeCompare(
+      firstOf(b.courts)?.name ?? "",
+      undefined,
+      { numeric: true }
+    );
+    if (courtCompare !== 0) return courtCompare;
+    return a.id.localeCompare(b.id);
+  });
+
+  return sorted.map((r) => ({
     id: r.id,
     round_id: r.round_id,
     court_name: firstOf(r.courts)?.name ?? null,
