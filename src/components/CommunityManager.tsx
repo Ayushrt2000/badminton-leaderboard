@@ -105,6 +105,28 @@ export function CommunityManager({
     setExpandedId(data.id);
   }
 
+  async function handleDelete(communityId: string) {
+    if (
+      !confirm(
+        "Delete this community? This can't be undone and will remove its courts too."
+      )
+    )
+      return;
+
+    setBusy(true);
+    setError(null);
+    const supabase = createClient();
+    const { error } = await supabase.from("communities").delete().eq("id", communityId);
+    setBusy(false);
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setCommunities((prev) => prev.filter((c) => c.id !== communityId));
+    setCourts((prev) => prev.filter((court) => court.community_id !== communityId));
+  }
+
   async function handleJoin(communityId: string) {
     setBusy(true);
     setError(null);
@@ -217,6 +239,16 @@ export function CommunityManager({
                           onClick={() => handleJoin(c.id)}
                         >
                           Join community
+                        </Button>
+                      )}
+                      {isAdmin && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={busy}
+                          onClick={() => handleDelete(c.id)}
+                        >
+                          Delete
                         </Button>
                       )}
                     </div>

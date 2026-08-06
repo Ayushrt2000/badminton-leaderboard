@@ -64,6 +64,22 @@ export function CourtsManager({
     setEditingId(null);
   }
 
+  async function handleDelete(id: string) {
+    if (!confirm("Delete this court? This can't be undone.")) return;
+
+    setBusy(true);
+    setError(null);
+    const supabase = createClient();
+    const { error } = await supabase.from("courts").delete().eq("id", id);
+    setBusy(false);
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setCourts((prev) => prev.filter((c) => c.id !== id));
+  }
+
   return (
     <div>
       {courts.length === 0 ? (
@@ -95,16 +111,26 @@ export function CourtsManager({
               ) : (
                 <>
                   <span className="text-sm font-medium text-white">{court.name}</span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      setEditingId(court.id);
-                      setEditingName(court.name);
-                    }}
-                  >
-                    Edit
-                  </Button>
+                  <div className="flex shrink-0 gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setEditingId(court.id);
+                        setEditingName(court.name);
+                      }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={busy}
+                      onClick={() => handleDelete(court.id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </>
               )}
             </li>
