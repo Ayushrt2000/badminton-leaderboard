@@ -302,7 +302,7 @@ export function RoundsBoard({
                 return (
                   <div
                     key={m.id}
-                    className={`rounded-xl border bg-surface-2 px-4 py-3 transition-colors ${
+                    className={`w-full min-w-0 overflow-hidden rounded-xl border bg-surface-2 px-4 py-3 transition-colors ${
                       decided ? "border-l-4 border-l-accent border-y-border border-r-border" : "border-border"
                     }`}
                   >
@@ -314,12 +314,12 @@ export function RoundsBoard({
                     {/* Mobile: stacked scorecard, one team per row. Both rows
                         read "names ... score" so the two score boxes line up
                         in the same column instead of alternating sides. */}
-                    <div className="flex flex-col gap-2 sm:hidden">
-                      <div className="flex items-center justify-between gap-3 border-b border-border/50 pb-2">
+                    <div className="flex w-full min-w-0 flex-col gap-2 sm:hidden">
+                      <div className="flex w-full min-w-0 items-center justify-between gap-3 border-b border-border/50 pb-2">
                         {team1Slots}
                         {score1}
                       </div>
-                      <div className="flex items-center justify-between gap-3">
+                      <div className="flex w-full min-w-0 items-center justify-between gap-3">
                         {team2SlotsMobile}
                         {score2}
                       </div>
