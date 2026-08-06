@@ -83,7 +83,15 @@ export function CreateEventForm({
               { event_id: event.id, court_id: c.id, skill_group: "beginner" },
               { event_id: event.id, court_id: c.id, skill_group: "advanced" },
             ]);
-        await supabase.from("event_courts").insert(rows);
+        const { error: courtsInsertError } = await supabase.from("event_courts").insert(rows);
+        if (courtsInsertError) {
+          setError(
+            `Event created, but assigning courts failed: ${courtsInsertError.message}. You can retry from the event page.`
+          );
+          setSubmitting(false);
+          router.push(`/events/${event.id}`);
+          return;
+        }
       }
     }
 
