@@ -720,7 +720,7 @@ export function EventControlCenter({
   return (
     <div>
       {canManage && (
-        <div className="mb-1 flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:gap-x-5 sm:gap-y-2">
+        <div className="mb-1 flex flex-wrap items-start gap-2">
           <RosterPanel
             participants={participants}
             onMove={handleMoveParticipant}

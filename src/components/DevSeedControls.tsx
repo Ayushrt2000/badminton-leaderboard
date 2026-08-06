@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { IconChevronUp, IconFlask } from "@/components/ui/Icons";
 
 export function DevSeedControls({
   eventId,
@@ -63,18 +64,28 @@ export function DevSeedControls({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-xs font-semibold text-white/30 underline decoration-dotted hover:text-white/60"
+        className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-white/15 bg-transparent px-3 py-1.5 text-xs font-semibold text-white/40 transition-colors hover:border-white/30 hover:text-white/70"
       >
+        <IconFlask className="h-3.5 w-3.5" />
         Dev: add test players
       </button>
     );
   }
 
   return (
-    <div className="mb-4 rounded-xl border border-dashed border-white/15 bg-white/[0.02] px-4 py-3">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/40">
-        Testing only — fills the roster with fake players (Beginner/Advanced alternating)
-      </p>
+    <div className="mb-4 w-full rounded-xl border border-dashed border-white/15 bg-white/[0.02] px-4 py-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <p className="text-xs font-semibold uppercase tracking-wider text-white/40">
+          Testing only — fills the roster with fake players (Beginner/Advanced alternating)
+        </p>
+        <button
+          onClick={() => setOpen(false)}
+          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs font-semibold text-white/50 transition-colors hover:border-white/20 hover:text-white"
+        >
+          <IconChevronUp className="h-3.5 w-3.5" />
+          Hide
+        </button>
+      </div>
       <div className="flex flex-wrap items-center gap-2">
         <Input
           type="number"
@@ -88,9 +99,6 @@ export function DevSeedControls({
         </Button>
         <Button size="sm" variant="ghost" disabled={busy} onClick={handleClear}>
           Clear test players
-        </Button>
-        <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>
-          Hide
         </Button>
       </div>
       {message && <p className="mt-2 text-xs text-white/50">{message}</p>}

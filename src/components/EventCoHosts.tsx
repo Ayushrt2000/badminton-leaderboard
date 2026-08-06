@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { IconChevronUp, IconShieldStar } from "@/components/ui/Icons";
 
 export type EventCoHost = { id: string; profileId: string; name: string };
 export type EventCoHostCandidate = { profileId: string; name: string };
@@ -25,9 +26,13 @@ export function EventCoHosts({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-xs font-semibold text-white/40 underline decoration-dotted hover:text-white/70"
+        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-white/60 transition-colors hover:border-white/20 hover:text-white"
       >
-        Manage co-hosts ({coHosts.length})
+        <IconShieldStar className="h-3.5 w-3.5" />
+        Manage co-hosts
+        <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] leading-none text-white/50">
+          {coHosts.length}
+        </span>
       </button>
     );
   }
@@ -40,8 +45,9 @@ export function EventCoHosts({
         <CardTitle className="text-lg">Co-hosts</CardTitle>
         <button
           onClick={() => setOpen(false)}
-          className="text-xs font-semibold text-white/40 hover:text-white/70"
+          className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs font-semibold text-white/50 transition-colors hover:border-white/20 hover:text-white"
         >
+          <IconChevronUp className="h-3.5 w-3.5" />
           Hide
         </button>
       </CardHeader>
