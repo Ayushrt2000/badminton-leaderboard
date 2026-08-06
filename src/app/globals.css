@@ -16,6 +16,10 @@ body {
   background-image: radial-gradient(circle at 20% 0%, rgba(255, 77, 28, 0.08), transparent 45%),
     radial-gradient(circle at 80% 10%, rgba(198, 255, 61, 0.06), transparent 40%);
   color: #f4f4f5;
+  /* Safety net: if any element ever overflows its container on a narrow
+     screen, clip it horizontally instead of letting the whole page scroll
+     sideways and cut off content on the right edge. */
+  overflow-x: hidden;
 }
 
 ::selection {

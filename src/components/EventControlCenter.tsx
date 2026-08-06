@@ -720,7 +720,7 @@ export function EventControlCenter({
   return (
     <div>
       {canManage && (
-        <div className="mb-1 flex flex-wrap items-start gap-x-5 gap-y-2">
+        <div className="mb-1 flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:gap-x-5 sm:gap-y-2">
           <RosterPanel
             participants={participants}
             onMove={handleMoveParticipant}
@@ -733,7 +733,7 @@ export function EventControlCenter({
             onRemove={handleRemoveCoHost}
           />
           <DevSeedControls eventId={event.id} onChanged={refresh} />
-          <div className="rounded-xl border border-border bg-surface px-3 py-2">
+          <div className="w-full rounded-xl border border-border bg-surface px-3 py-2 sm:w-auto">
             <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/40">
               Courts
             </p>
