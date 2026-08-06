@@ -22,6 +22,7 @@ export function CreateEventForm({
   const [sessionMinutes, setSessionMinutes] = useState("120");
   const [gameMinutes, setGameMinutes] = useState("90");
   const [roundMinutes, setRoundMinutes] = useState("6");
+  const [splitCourts, setSplitCourts] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,9 +61,10 @@ export function CreateEventForm({
       return;
     }
 
-    // Auto-split the community's courts between the two skill groups so
-    // there's a sensible default the host can adjust later from the event
-    // page. If there are no courts yet, this is just a no-op.
+    // Assign the community's courts to this event. If splitCourts is on,
+    // divide them between the two skill groups (a sensible default the host
+    // can adjust later). If it's off, every court is shared by both groups.
+    // If there are no courts yet, this is just a no-op.
     if (communityId) {
       const { data: courts } = await supabase
         .from("courts")
@@ -71,12 +73,16 @@ export function CreateEventForm({
         .order("name");
 
       if (courts && courts.length > 0) {
-        const mid = Math.ceil(courts.length / 2);
-        const rows = courts.map((c, i) => ({
-          event_id: event.id,
-          court_id: c.id,
-          skill_group: i < mid ? "beginner" : "advanced",
-        }));
+        const rows = splitCourts
+          ? courts.map((c, i) => ({
+              event_id: event.id,
+              court_id: c.id,
+              skill_group: i < Math.ceil(courts.length / 2) ? "beginner" : "advanced",
+            }))
+          : courts.flatMap((c) => [
+              { event_id: event.id, court_id: c.id, skill_group: "beginner" },
+              { event_id: event.id, court_id: c.id, skill_group: "advanced" },
+            ]);
         await supabase.from("event_courts").insert(rows);
       }
     }
@@ -153,6 +159,23 @@ export function CreateEventForm({
               />
             </div>
           </div>
+
+          <label className="flex items-start gap-2.5 rounded-xl border border-border bg-surface-2 px-4 py-3 text-sm text-white/70">
+            <input
+              type="checkbox"
+              checked={splitCourts}
+              onChange={(e) => setSplitCourts(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
+            />
+            <span>
+              <span className="block font-medium text-white">Split courts by skill level</span>
+              <span className="block text-xs text-white/45">
+                {splitCourts
+                  ? "Courts are divided between beginner and advanced. Turn off to make every court available to both groups."
+                  : "Every court is shared by both beginner and advanced groups."}
+              </span>
+            </span>
+          </label>
 
           {error && <p className="text-sm text-primary">{error}</p>}
           <div className="flex gap-2">
