@@ -14,7 +14,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("name, phone, email, community_id, communities(name)")
+    .select("name, phone, email, community_id, communities!profiles_community_id_fkey(name)")
     .eq("id", user.id)
     .maybeSingle();
 
